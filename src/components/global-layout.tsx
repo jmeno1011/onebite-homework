@@ -10,7 +10,7 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
   return (
     <div className={style.container}>
       <header className={style.header}>
-        <Link href={"/"}>ONEBITE CINEMA</Link>
+        <Link href={"/"}>TONO ONEBITE CINEMA</Link>
       </header>
       <main>{children}</main>
       <footer>footer</footer>
