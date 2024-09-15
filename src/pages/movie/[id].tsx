@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import style from "./[id].module.css";
 import movies from "@/mock/movie.json";
+import { MovieData } from '@/types';
 
 export default function Page() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function Page() {
     genres,
     runtime,
     posterImgUrl,
-  } = movies.filter(movie => String(movie.id) === id)[0];
+  } = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
   return (
     <div className={style.container}>
       <div style={{ backgroundImage: `url(${posterImgUrl})` }} className={style.poster_img_container}>
