@@ -1,0 +1,20 @@
+.container{
+  display: flex;
+  flex-direction: column;
+}
+
+.container section{
+  padding: 16px 0 32px;
+}
+
+.recommend_row{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.all_content_container{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+}
