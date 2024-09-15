@@ -7,6 +7,11 @@ import { MovieData } from '@/types';
 export default function Page() {
   const router = useRouter();
   const id = router.query.id as string;
+  const movie = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
+
+  if (!movie) {
+    return <div>존재하지 않는 영화 입니다.</div>;
+  }
   const {
     title,
     subTitle,
@@ -16,7 +21,8 @@ export default function Page() {
     genres,
     runtime,
     posterImgUrl,
-  } = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
+  } = movie
+  
   return (
     <div className={style.container}>
       <div style={{ backgroundImage: `url(${posterImgUrl})` }} className={style.poster_img_container}>
