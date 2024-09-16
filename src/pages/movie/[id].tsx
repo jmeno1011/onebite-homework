@@ -3,15 +3,30 @@ import React from 'react'
 import style from "./[id].module.css";
 import movies from "@/mock/movie.json";
 import { MovieData } from '@/types';
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import fetchOneMovie from '@/lib/fetch-one-movie';
 
-export default function Page() {
-  const router = useRouter();
-  const id = router.query.id as string;
-  const movie = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+  const id = context.params!.id;
+  const movie = await fetchOneMovie(Number(id));
 
-  if (!movie) {
-    return <div>존재하지 않는 영화 입니다.</div>;
+  return {
+    props: {
+      movie
+    }
   }
+}
+
+export default function Page({ movie }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  // fetchOneMovie()에서 데이터가 없을 때 null을 보내주기때문에 null체크가 필요함
+  if (movie === null) return "문제가 발생했습니다. 다시 시도하세요.";
+  // const router = useRouter();
+  // const id = router.query.id as string;
+  // const movie = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
+
+  // if (!movie) {
+  //   return <div>존재하지 않는 영화 입니다.</div>;
+  // }
   const {
     title,
     subTitle,
@@ -22,7 +37,7 @@ export default function Page() {
     runtime,
     posterImgUrl,
   } = movie
-  
+
   return (
     <div className={style.container}>
       <div style={{ backgroundImage: `url(${posterImgUrl})` }} className={style.poster_img_container}>
@@ -33,12 +48,12 @@ export default function Page() {
         <div>{releaseDate}</div>
         <div>/</div>
         <div>{genres.map((genre, index) => {
-          if(index+1 === genres.length){
+          if (index + 1 === genres.length) {
             return (<span key={genre}>{genre}</span>)
-          }else{
+          } else {
             return (<span key={genre}>{genre},</span>)
           }
-        } )}</div>
+        })}</div>
         <div>/</div>
         <div>{runtime}분</div>
       </div>
