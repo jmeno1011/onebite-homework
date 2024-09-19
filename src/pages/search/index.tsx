@@ -1,16 +1,20 @@
 import SearchbarLayout from "@/components/searchbar-layout";
-import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import movies from "@/mock/movie.json";
 import MovieItem from "@/components/movie-item";
 import style from "./index.module.css";
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import fetchMovies from "@/lib/fetch-movies";
+import { useRouter } from "next/router";
+import { InferGetStaticPropsType } from "next";
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const q = context.query.q as string;
 
-  const movies = await fetchMovies(q);
+export const getStaticProps = async () =>{
+// export const getStaticProps = async (context: GetStaticPropsContext) =>{
+  // => GetStaticPropsContext don't have query property 
+  // then occur the Error on the underline
+  // const q = context.query.q as string; 
+  // reference https://nextjs.org/docs/pages/api-reference/functions/get-static-props#context-parameter
+
+  const movies = await fetchMovies();
 
   return {
     props: {
@@ -19,14 +23,28 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   }
 }
 
-export default function Page({ movies }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Page({movies}: InferGetStaticPropsType<typeof getStaticProps>) {
+  // const [movies, setMovies] = useState<MovieData[]>([]);
 
-  // const router = useRouter();
-  // const q = router.query.q as string;
-  // const result = movies.filter(movies => movies.title.includes(q));
+  const router = useRouter();
+  const q = router.query.q as string;
+
+  // 최대한 ssg로 next build 결과에 따라서..!
+  const result = movies.filter(movies => movies.title.includes(q));
+
+  // const fetchSearchMovie = async () => {
+  //   const data = await fetchMovies(q);
+  //   setMovies(data);
+  // }
+
+  // useEffect(() => {
+  //   if (q) {
+  //     fetchSearchMovie();
+  //   }
+  // }, [q]);
 
   return <div className={style.container}>
-    {movies.length > 0 ? movies.map(movie =>
+    {result.length > 0 ? result.map(movie =>
       <MovieItem key={movie.id} {...movie} />
     ) : <div>검색 결과가 없습니다.</div>}
   </div>;

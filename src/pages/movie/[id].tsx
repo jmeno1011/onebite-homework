@@ -1,14 +1,29 @@
-import { useRouter } from 'next/router'
 import React from 'react'
 import style from "./[id].module.css";
-import movies from "@/mock/movie.json";
-import { MovieData } from '@/types';
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
 import fetchOneMovie from '@/lib/fetch-one-movie';
+import { useRouter } from 'next/router';
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+export const getStaticPaths = ()=>{
+  return {
+    paths: [],
+    // paths의 보험 , path가 없을 경우의 옵션
+    // fallback: false => 404, not found로 이동
+    // fallback: blocking 즉시 생성 (Like SSR)
+    // fallback: true 즉시 생성 + 페이지만 미리 반환 (props가 없는 상태 즉 getStaticProps의 데이터가 없는 상태로 렌더링)
+    fallback: true
+  }
+}
+
+export const getStaticProps = async (context: GetStaticPropsContext) => {
   const id = context.params!.id;
   const movie = await fetchOneMovie(Number(id));
+
+if(!movie){
+  return {
+    notFound: true
+  }
+}
 
   return {
     props: {
@@ -17,16 +32,16 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   }
 }
 
-export default function Page({ movie }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  // fetchOneMovie()에서 데이터가 없을 때 null을 보내주기때문에 null체크가 필요함
-  if (movie === null) return "문제가 발생했습니다. 다시 시도하세요.";
-  // const router = useRouter();
-  // const id = router.query.id as string;
-  // const movie = movies.filter(movie => String(movie.id) === id)[0] as MovieData;
+export default function Page({ movie }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const router = useRouter();
 
-  // if (!movie) {
-  //   return <div>존재하지 않는 영화 입니다.</div>;
-  // }
+  // fallback 상태일 때 로딩 화면을 보여줌
+  // fallback true 일때 데이터가 없는 상테이므로 잠깐의 딜레이가 발생 할 수 있어서 "로딩 중" 문구 필요
+  if (router.isFallback) return "로딩중입니다."
+
+  // 진짜 에러 발생
+  if (movie === null) return "문제가 발생했습니다. 다시 시도하세요.";
+  
   const {
     title,
     subTitle,
