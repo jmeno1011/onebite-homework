@@ -11,7 +11,7 @@ export const getStaticPaths = ()=>{
     // fallback: false => 404, not found로 이동
     // fallback: blocking 즉시 생성 (Like SSR)
     // fallback: true 즉시 생성 + 페이지만 미리 반환 (props가 없는 상태 즉 getStaticProps의 데이터가 없는 상태로 렌더링)
-    fallback: true
+    fallback: "blocking"
   }
 }
 
