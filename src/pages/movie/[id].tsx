@@ -3,8 +3,9 @@ import style from "./[id].module.css";
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
 import fetchOneMovie from '@/lib/fetch-one-movie';
 import { useRouter } from 'next/router';
+import GlobalHead from '@/components/global-head';
 
-export const getStaticPaths = ()=>{
+export const getStaticPaths = () => {
   return {
     paths: [],
     // paths의 보험 , path가 없을 경우의 옵션
@@ -19,11 +20,11 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const id = context.params!.id;
   const movie = await fetchOneMovie(Number(id));
 
-if(!movie){
-  return {
-    notFound: true
+  if (!movie) {
+    return {
+      notFound: true
+    }
   }
-}
 
   return {
     props: {
@@ -37,11 +38,25 @@ export default function Page({ movie }: InferGetStaticPropsType<typeof getStatic
 
   // fallback 상태일 때 로딩 화면을 보여줌
   // fallback true 일때 데이터가 없는 상테이므로 잠깐의 딜레이가 발생 할 수 있어서 "로딩 중" 문구 필요
-  if (router.isFallback) return "로딩중입니다."
+  if (router.isFallback) {
+    return (
+      <>
+        <GlobalHead
+          title="한입 씨네마"
+          ogImage="/thumnail.png"
+          ogTitle="한입 씨네마"
+          description="한입 씨네마에 등록된 영화들을 만나보세요"
+        />
+        <div>
+          로딩중입니다.
+        </div>
+      </>
+    )
+  }
 
   // 진짜 에러 발생
   if (movie === null) return "문제가 발생했습니다. 다시 시도하세요.";
-  
+
   const {
     title,
     subTitle,
@@ -54,27 +69,35 @@ export default function Page({ movie }: InferGetStaticPropsType<typeof getStatic
   } = movie
 
   return (
-    <div className={style.container}>
-      <div style={{ backgroundImage: `url(${posterImgUrl})` }} className={style.poster_img_container}>
-        <img src={posterImgUrl} alt={`${title}-image`} />
+    <>
+      <GlobalHead
+        title={title}
+        ogImage={posterImgUrl}
+        ogTitle={subTitle}
+        description={description}
+      />
+      <div className={style.container}>
+        <div style={{ backgroundImage: `url(${posterImgUrl})` }} className={style.poster_img_container}>
+          <img src={posterImgUrl} alt={`${title}-image`} />
+        </div>
+        <div className={style.title}>{title}</div>
+        <div className={style.movieInfo}>
+          <div>{releaseDate}</div>
+          <div>/</div>
+          <div>{genres.map((genre, index) => {
+            if (index + 1 === genres.length) {
+              return (<span key={genre}>{genre}</span>)
+            } else {
+              return (<span key={genre}>{genre},</span>)
+            }
+          })}</div>
+          <div>/</div>
+          <div>{runtime}분</div>
+        </div>
+        <div>{company}</div>
+        <div className={style.subTitle}>{subTitle}</div>
+        <div>{description}</div>
       </div>
-      <div className={style.title}>{title}</div>
-      <div className={style.movieInfo}>
-        <div>{releaseDate}</div>
-        <div>/</div>
-        <div>{genres.map((genre, index) => {
-          if (index + 1 === genres.length) {
-            return (<span key={genre}>{genre}</span>)
-          } else {
-            return (<span key={genre}>{genre},</span>)
-          }
-        })}</div>
-        <div>/</div>
-        <div>{runtime}분</div>
-      </div>
-      <div>{company}</div>
-      <div className={style.subTitle}>{subTitle}</div>
-      <div>{description}</div>
-    </div>
+    </>
   )
 }
